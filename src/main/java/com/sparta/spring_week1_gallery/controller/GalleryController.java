@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.*;
 import java.util.List;
+import java.util.TimeZone;
 
 @RestController
 @RequestMapping("/api")
@@ -30,7 +31,7 @@ public class GalleryController {
         // DB 저장
         KeyHolder keyHolder = new GeneratedKeyHolder(); // 기본 키를 반환받기 위한 객체
 
-        String sql = "INSERT INTO gallery (user_pw, username, title, contents) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO gallery (user_pw, username, title, contents, updateAt) VALUES (?, ?, ?, ?, ?)";
         jdbcTemplate.update( con -> {
                     PreparedStatement preparedStatement = con.prepareStatement(sql,
                             Statement.RETURN_GENERATED_KEYS);
@@ -39,6 +40,8 @@ public class GalleryController {
                     preparedStatement.setString(2, gallery.getUsername());
                     preparedStatement.setString(3, gallery.getTitle());
                     preparedStatement.setString(4, gallery.getContents());
+                    preparedStatement.setTimestamp(5, gallery.getUpdatedAt());
+
                     return preparedStatement;
                 },
                 keyHolder);
@@ -66,6 +69,7 @@ public class GalleryController {
                 String username = rs.getString("username");
                 String contents = rs.getString("contents");
                 Timestamp updateAt = rs.getTimestamp("updateAt");
+
                 return new GalleryResponseDto(title, username, contents, updateAt);
             }
         });
@@ -103,8 +107,9 @@ public class GalleryController {
 
         if(gallery != null && actualPassword.equals(requestDto.getUser_pw())) {
             // memo 내용 수정
-            String sql = "UPDATE gallery SET title = ?, username = ?, contents = ? WHERE id = ?";
-            jdbcTemplate.update(sql, requestDto.getTitle(), requestDto.getUsername(), requestDto.getContents(), id);
+            String sql = "UPDATE gallery SET title = ?, username = ?, contents = ?, updateAt = ? WHERE id = ?";
+
+            jdbcTemplate.update(sql, requestDto.getTitle(), requestDto.getUsername(), requestDto.getContents(), requestDto.getUpdateAt(), id);
 
             Gallery updatedGallery = findById(id);
 
@@ -114,6 +119,7 @@ public class GalleryController {
             throw new IllegalArgumentException("선택한 메모는 존재하지 않습니다.");
         }
     }
+
 
     @DeleteMapping("/gall/{id}")
     public String deleteGallery(@PathVariable Long id, @RequestBody GalleryRequestDto requestDto) { // 6번 요청

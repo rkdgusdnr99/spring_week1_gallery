@@ -33,7 +33,8 @@ public class GalleryResponseDto {
         this.updatedAt = updatedAt;
     }
 
-
 }
+
+
 
 

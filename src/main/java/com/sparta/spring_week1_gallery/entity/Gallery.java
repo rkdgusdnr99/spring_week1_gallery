@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.sql.Timestamp;
+import java.util.TimeZone;
 
 @Getter
 @Setter
@@ -23,6 +24,6 @@ public class Gallery {
         this.username = responseDto.getUsername();
         this.title = responseDto.getTitle();
         this.contents = responseDto.getContents();
-        this.updatedAt = responseDto.getUpdatedAt();
+        this.updatedAt = responseDto.getUpdateAt();
     }
 }
